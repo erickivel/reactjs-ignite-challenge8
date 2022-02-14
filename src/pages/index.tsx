@@ -48,8 +48,6 @@ export default function Home(): JSX.Element {
     return flatData;
   }, [data]);
 
-  console.log(formattedData);
-
   if (isLoading) {
     return <Loading />;
   }
