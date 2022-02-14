@@ -19,9 +19,14 @@ export default function Home(): JSX.Element {
   } = useInfiniteQuery(
     'images',
     ({ pageParam = null }) =>
-      api.get(`/api/images${pageParam ? `?after=${pageParam}` : ''}`),
+      api.get(
+        `/api/images${pageParam ? `?after=${pageParam?.data.after}` : ''}`
+      ),
     {
-      getNextPageParam: lastPage => lastPage || null,
+      getNextPageParam: (lastPage, pages) => {
+        // console.log(lastPage);
+        return lastPage || null;
+      },
     }
   );
 
@@ -43,6 +48,8 @@ export default function Home(): JSX.Element {
     return flatData;
   }, [data]);
 
+  console.log(formattedData);
+
   if (isLoading) {
     return <Loading />;
   }
@@ -57,7 +64,11 @@ export default function Home(): JSX.Element {
 
       <Box maxW={1120} px={20} mx="auto" my={20}>
         <CardList cards={formattedData} />
-        {/* TODO RENDER LOAD MORE BUTTON IF DATA HAS NEXT PAGE */}
+        {hasNextPage && (
+          <Button onClick={() => fetchNextPage()} type="button">
+            {isFetchingNextPage ? 'Carregando...' : 'Carregar mais'}
+          </Button>
+        )}
       </Box>
     </>
   );
