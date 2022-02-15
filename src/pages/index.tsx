@@ -18,27 +18,25 @@ export default function Home(): JSX.Element {
     hasNextPage,
   } = useInfiniteQuery(
     'images',
-    ({ pageParam = null }) =>
-      api.get(
-        `/api/images${pageParam ? `?after=${pageParam?.data.after}` : ''}`
-      ),
+    ({ pageParam = null }) => {
+      return api.get('/api/images', {
+        params: {
+          after: pageParam || '',
+        },
+      });
+    },
     {
-      getNextPageParam: (lastPage, pages) => {
-        // console.log(lastPage);
-        return lastPage || null;
+      getNextPageParam: lastPage => {
+        return lastPage.data.after ? lastPage.data.after : undefined;
       },
     }
   );
 
   const formattedData = useMemo(() => {
     const unflattenedData = data?.pages.map(page => {
-      return page.data.data.map(image => {
+      return page.data.data.flat(image => {
         return {
-          title: image.title,
-          description: image.description,
-          url: image.url,
-          ts: image.ts,
-          id: image.id,
+          ...image,
         };
       });
     });
